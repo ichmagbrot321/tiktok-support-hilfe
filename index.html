@@ -834,7 +834,10 @@
   .status-aktiv { background: rgba(248,113,113,0.12); color: var(--red); }
   .status-stabil { background: rgba(251,191,36,0.12); color: var(--yellow); }
   .status-pausiert { background: rgba(148,163,184,0.12); color: #94a3b8; }
-  .status-erledigt { background: rgba(74,222,128,0.12); color: var(--green); }
+  .status-abgeschlossen { background: rgba(74,222,128,0.12); color: var(--green); }
+  .status-blockiert { background: rgba(239,68,68,0.12); color: #f87171; }
+  .status-ungeklärt { background: rgba(251,191,36,0.12); color: var(--orange); }
+  .status-abgebrochen { background: rgba(100,116,139,0.12); color: #64748b; }
 
   .no-contacts {
     text-align: center;
@@ -867,7 +870,8 @@
       <button class="filter-btn active" onclick="setFilter('alle', this)">Alle</button>
       <button class="filter-btn" onclick="setFilter('hoch', this)">🔴 Hoch</button>
       <button class="filter-btn" onclick="setFilter('aktiv', this)">Aktiv</button>
-      <button class="filter-btn" onclick="setFilter('erledigt', this)">✅ Erledigt</button>
+      <button class="filter-btn" onclick="setFilter('abgeschlossen', this)">✅ Abgeschlossen</button>
+      <button class="filter-btn" onclick="setFilter('blockiert', this)">🚫 Blockiert</button>
     </div>
 
     <div class="contacts-list" id="contactsList">
@@ -1280,7 +1284,15 @@ function renderOverviewTab(contact) {
       <div class="info-card">
         <div class="info-card-label">Status</div>
         <select id="edit_status" class="form-input" style="margin-top:0">
-          ${['aktiv','stabil','pausiert','erledigt'].map(s => `<option value="${s}" ${contact.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+          ${['aktiv','stabil','pausiert','abgeschlossen','blockiert','ungeklärt','abgebrochen'].map(s => `<option value="${s}" ${contact.status===s?'selected':''}>${
+            s==='aktiv'?'🔴 Aktiv':
+            s==='stabil'?'🟡 Stabil':
+            s==='pausiert'?'⏸️ Pausiert':
+            s==='abgeschlossen'?'✅ Gut abgeschlossen':
+            s==='blockiert'?'🚫 Blockiert':
+            s==='ungeklärt'?'❓ Ungeklärt':
+            '⛔ Abgebrochen'
+          }</option>`).join('')}
         </select>
       </div>
       <div class="info-card">
