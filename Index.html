@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e28;
+    --surface3: #222636;
+    --border: #2a2f3f;
+    --border2: #363c52;
+    --text: #e8eaf0;
+    --text2: #9099b0;
+    --text3: #5a6278;
+    --accent: #7c6fff;
+    --accent2: #9d95ff;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+    --pink: #f472b6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), #b47aff);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px 8px 32px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box input::placeholder { color: var(--text3); }
+
+  .search-icon {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  .sidebar-filters {
+    padding: 10px 20px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-btn {
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .contacts-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .contacts-list::-webkit-scrollbar { width: 4px; }
+  .contacts-list::-webkit-scrollbar-track { background: transparent; }
+  .contacts-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .contact-card {
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .contact-card:hover { background: var(--surface2); }
+  .contact-card.active { background: var(--surface2); border-color: var(--accent); }
+
+  .contact-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #b47aff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .contact-info { flex: 1; min-width: 0; }
+
+  .contact-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .contact-username {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .priority-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .contact-card-bottom {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tag {
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .contact-last {
+    font-size: 10px;
+    color: var(--text3);
+    margin-left: auto;
+  }
+
+  .add-btn {
+    margin: 12px;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--accent), #b47aff);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: opacity 0.2s;
+  }
+
+  .add-btn:hover { opacity: 0.85; }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text3);
+    gap: 12px;
+  }
+
+  .empty-state .icon { font-size: 48px; }
+  .empty-state h2 { font-size: 18px; color: var(--text2); font-weight: 600; }
+  .empty-state p { font-size: 14px; max-width: 280px; text-align: center; line-height: 1.5; }
+
+  /* CONTACT DETAIL */
+  .detail-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--surface);
+  }
+
+  .detail-avatar {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), #b47aff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .detail-info { flex: 1; }
+
+  .detail-name {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 2px;
+  }
+
+  .detail-username {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    text-decoration: none;
+  }
+
+  .detail-username:hover { text-decoration: underline; }
+
+  .detail-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    width: 36px; height: 36px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    transition: all 0.15s;
+    color: var(--text2);
+  }
+
+  .icon-btn:hover { background: var(--surface3); color: var(--text); }
+  .icon-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 28px;
+  }
+
+  .tab {
+    padding: 12px 0;
+    margin-right: 24px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text2); }
+
+  /* TAB CONTENT */
+  .tab-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+  }
+
+  .tab-content::-webkit-scrollbar { width: 4px; }
+  .tab-content::-webkit-scrollbar-track { background: transparent; }
+  .tab-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* OVERVIEW TAB */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .info-card-label {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .info-card-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .info-card select,
+  .info-card input,
+  .info-card textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  .info-card select:focus,
+  .info-card input:focus,
+  .info-card textarea:focus { border-color: var(--accent); }
+
+  .info-card-full { grid-column: 1 / -1; }
+
+  .save-btn {
+    padding: 10px 20px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .save-btn:hover { opacity: 0.85; }
+
+  /* AI SUMMARY */
+  .ai-card {
+    background: linear-gradient(135deg, #1a1535, #161828);
+    border: 1px solid #3a3060;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .ai-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .ai-badge {
+    background: linear-gradient(135deg, var(--accent), #b47aff);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+  }
+
+  .ai-generate-btn {
+    margin-left: auto;
+    padding: 6px 14px;
+    background: rgba(124, 111, 255, 0.15);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    color: var(--accent2);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .ai-generate-btn:hover { background: rgba(124, 111, 255, 0.25); }
+  .ai-generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ai-text {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* MESSAGES TAB */
+  .messages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .msg-bubble {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    position: relative;
+  }
+
+  .msg-bubble.incoming {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 12px 4px;
+    align-self: flex-start;
+  }
+
+  .msg-bubble.outgoing {
+    background: linear-gradient(135deg, #3d2fa0, #5040c0);
+    border-radius: 12px 12px 4px 12px;
+    align-self: flex-end;
+  }
+
+  .msg-time {
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 4px;
+    display: block;
+  }
+
+  .msg-input-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    position: sticky;
+    bottom: 0;
+  }
+
+  .msg-input-area textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    resize: none;
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+
+  .msg-input-area textarea:focus { border-color: var(--accent); }
+
+  .msg-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .direction-toggle {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .direction-toggle button {
+    padding: 7px 14px;
+    background: transparent;
+    border: none;
+    color: var(--text3);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .direction-toggle button.active {
+    background: var(--surface3);
+    color: var(--text);
+  }
+
+  .msg-send-btn {
+    padding: 8px 16px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .msg-send-btn:hover { opacity: 0.85; }
+
+  /* AI REPLY SUGGESTIONS */
+  .ai-reply-btn {
+    margin-left: auto;
+    padding: 8px 14px;
+    background: rgba(124, 111, 255, 0.12);
+    border: 1px solid rgba(124, 111, 255, 0.3);
+    border-radius: 8px;
+    color: var(--accent2);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ai-reply-btn:hover { background: rgba(124, 111, 255, 0.2); }
+  .ai-reply-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .reply-suggestions {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .reply-suggestion {
+    background: linear-gradient(135deg, #1a1535, #161828);
+    border: 1px solid #3a3060;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .reply-suggestion:hover { border-color: var(--accent); }
+
+  .reply-suggestion-label {
+    font-size: 10px;
+    color: var(--accent2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .reply-suggestion-text {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 24px;
+    width: 460px;
+    max-width: 90vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .modal-close {
+    width: 28px; height: 28px;
+    background: var(--surface2);
+    border: none;
+    border-radius: 6px;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover { color: var(--text); }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .form-group { margin-bottom: 12px; }
+  .form-group.half { margin-bottom: 0; }
+
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--text3); }
+
+  .form-input select { cursor: pointer; }
+
+  .modal-footer {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .btn-secondary {
+    padding: 9px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-secondary:hover { border-color: var(--border2); color: var(--text); }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .stat-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* LOADING */
+  .loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    z-index: 200;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+
+  /* COLOR HELPERS */
+  .prio-hoch { color: var(--red); }
+  .prio-mittel { color: var(--yellow); }
+  .prio-niedrig { color: var(--green); }
+  .bg-hoch { background: rgba(248,113,113,0.15); color: var(--red); }
+  .bg-mittel { background: rgba(251,191,36,0.12); color: var(--yellow); }
+  .bg-niedrig { background: rgba(74,222,128,0.12); color: var(--green); }
+  .status-aktiv { background: rgba(248,113,113,0.12); color: var(--red); }
+  .status-stabil { background: rgba(251,191,36,0.12); color: var(--yellow); }
+  .status-pausiert { background: rgba(148,163,184,0.12); color: #94a3b8; }
+  .status-erledigt { background: rgba(74,222,128,0.12); color: var(--green); }
+
+  .no-contacts {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">💬</div>
+        <div>
+          <div class="logo-text">Support Dashboard</div>
+          <div class="logo-sub">TikTok Gespräche</div>
+        </div>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Suchen..." oninput="filterContacts()">
+      </div>
+    </div>
+
+    <div class="sidebar-filters">
+      <button class="filter-btn active" onclick="setFilter('alle', this)">Alle</button>
+      <button class="filter-btn" onclick="setFilter('hoch', this)">🔴 Hoch</button>
+      <button class="filter-btn" onclick="setFilter('aktiv', this)">Aktiv</button>
+      <button class="filter-btn" onclick="setFilter('erledigt', this)">✅ Erledigt</button>
+    </div>
+
+    <div class="contacts-list" id="contactsList">
+      <div class="no-contacts">Lade Kontakte...</div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">
+      <div class="stat"><div class="stat-dot" style="background:var(--red)"></div><span id="statHoch">0 hoch</span></div>
+      <div class="stat"><div class="stat-dot" style="background:var(--yellow)"></div><span id="statMittel">0 mittel</span></div>
+      <div class="stat"><div class="stat-dot" style="background:var(--green)"></div><span id="statNiedrig">0 niedrig</span></div>
+    </div>
+
+    <button class="add-btn" onclick="openAddModal()">+ Neuen Kontakt hinzufügen</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+    <div class="empty-state">
+      <div class="icon">👋</div>
+      <h2>Wähle einen Kontakt aus</h2>
+      <p>Klicke links auf einen Kontakt oder füge einen neuen hinzu um loszulegen.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Neuer Kontakt</div>
+      <button class="modal-close" onclick="closeModal('addModal')">✕</button>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group half">
+        <label class="form-label">TikTok Username *</label>
+        <input class="form-input" id="new_username" placeholder="z.B. max.mustermann" type="text">
+      </div>
+      <div class="form-group half">
+        <label class="form-label">Anzeigename</label>
+        <input class="form-input" id="new_displayname" placeholder="z.B. Max" type="text">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group half">
+        <label class="form-label">Alter (ca.)</label>
+        <input class="form-input" id="new_age" placeholder="z.B. 16-17" type="text">
+      </div>
+      <div class="form-group half">
+        <label class="form-label">Priorität</label>
+        <select class="form-input" id="new_priority">
+          <option value="mittel">Mittel</option>
+          <option value="hoch">Hoch</option>
+          <option value="niedrig">Niedrig</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Problem-Kategorie</label>
+      <select class="form-input" id="new_category">
+        <option value="">-- wählen --</option>
+        <option value="Einsamkeit">Einsamkeit</option>
+        <option value="Depressionen/Angst">Depressionen / Angst</option>
+        <option value="Familiäre Probleme">Familiäre Probleme</option>
+        <option value="Schulstress">Schulstress</option>
+        <option value="Mobbing">Mobbing</option>
+        <option value="Selbstverletzung">Selbstverletzung ⚠️</option>
+        <option value="Beziehungsprobleme">Beziehungsprobleme</option>
+        <option value="Identität">Identität</option>
+        <option value="Sonstiges">Sonstiges</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Kurze Zusammenfassung des Problems</label>
+      <textarea class="form-input" id="new_summary" rows="3" placeholder="Was hat die Person erzählt? Was ist die Situation?"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notizen</label>
+      <textarea class="form-input" id="new_notes" rows="2" placeholder="Weitere Infos, Besonderheiten..."></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('addModal')">Abbrechen</button>
+      <button class="save-btn" onclick="saveNewContact()">Kontakt speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// CONFIG – trage deine Vercel URL ein
+const API_BASE = window.location.origin;
+
+let contacts = [];
+let currentContact = null;
+let currentFilter = 'alle';
+let messages = [];
+let replySuggestions = [];
+
+// ==================== DATA ====================
+
+async function loadContacts() {
+  try {
+    const r = await fetch(`${API_BASE}/api/contacts`);
+    contacts = await r.json();
+    renderContacts();
+    updateStats();
+  } catch (e) {
+    showToast('Fehler beim Laden der Kontakte', 'error');
+    document.getElementById('contactsList').innerHTML = '<div class="no-contacts">Konnte Kontakte nicht laden.<br>Prüfe deine API-Verbindung.</div>';
+  }
+}
+
+async function loadMessages(contactId) {
+  try {
+    const r = await fetch(`${API_BASE}/api/messages?contact_id=${contactId}`);
+    messages = await r.json();
+    renderMessages();
+  } catch (e) {
+    messages = [];
+  }
+}
+
+async function saveNewContact() {
+  const username = document.getElementById('new_username').value.trim();
+  if (!username) { showToast('TikTok Username ist Pflicht!', 'error'); return; }
+
+  const body = {
+    tiktok_username: username.replace('@', ''),
+    display_name: document.getElementById('new_displayname').value.trim() || username,
+    age_estimate: document.getElementById('new_age').value.trim(),
+    priority: document.getElementById('new_priority').value,
+    problem_category: document.getElementById('new_category').value,
+    problem_summary: document.getElementById('new_summary').value.trim(),
+    notes: document.getElementById('new_notes').value.trim(),
+    status: 'aktiv'
+  };
+
+  try {
+    const r = await fetch(`${API_BASE}/api/contacts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const newContact = await r.json();
+    contacts.unshift(newContact);
+    renderContacts();
+    updateStats();
+    closeModal('addModal');
+    openContact(newContact);
+    showToast('Kontakt gespeichert! ✓', 'success');
+  } catch (e) {
+    showToast('Fehler beim Speichern', 'error');
+  }
+}
+
+async function updateContact(id, updates) {
+  try {
+    const r = await fetch(`${API_BASE}/api/contacts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...updates })
+    });
+    const updated = await r.json();
+    const idx = contacts.findIndex(c => c.id === id);
+    if (idx !== -1) contacts[idx] = updated;
+    currentContact = updated;
+    renderContacts();
+    updateStats();
+    showToast('Gespeichert ✓', 'success');
+  } catch (e) {
+    showToast('Fehler beim Speichern', 'error');
+  }
+}
+
+async function deleteContact(id) {
+  if (!confirm('Kontakt wirklich löschen? Alle Nachrichten werden gelöscht.')) return;
+  try {
+    await fetch(`${API_BASE}/api/contacts?id=${id}`, { method: 'DELETE' });
+    contacts = contacts.filter(c => c.id !== id);
+    currentContact = null;
+    renderContacts();
+    updateStats();
+    document.getElementById('mainArea').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">✅</div>
+        <h2>Kontakt gelöscht</h2>
+        <p>Wähle einen anderen Kontakt aus der Liste.</p>
+      </div>`;
+    showToast('Kontakt gelöscht', 'success');
+  } catch (e) {
+    showToast('Fehler beim Löschen', 'error');
+  }
+}
+
+async function sendMessage() {
+  const textarea = document.getElementById('msgTextarea');
+  const direction = document.querySelector('.direction-toggle button.active')?.dataset.dir || 'eingehend';
+  const content = textarea.value.trim();
+  if (!content || !currentContact) return;
+
+  try {
+    const r = await fetch(`${API_BASE}/api/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contact_id: currentContact.id, direction, content })
+    });
+    const msg = await r.json();
+    messages.push(msg);
+    textarea.value = '';
+    document.getElementById('replySuggestionsArea').innerHTML = '';
+    renderMessages();
+  } catch (e) {
+    showToast('Fehler beim Speichern der Nachricht', 'error');
+  }
+}
+
+// ==================== AI ====================
+
+async function getAISummary() {
+  const btn = document.getElementById('aiSumBtn');
+  const area = document.getElementById('aiSumText');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  area.innerHTML = '<span class="loading"><span class="spinner"></span> KI analysiert...</span>';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/ai`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'summary', contact_id: currentContact.id })
+    });
+    const data = await r.json();
+    area.innerHTML = data.result || 'Keine Zusammenfassung verfügbar.';
+  } catch (e) {
+    area.innerHTML = 'KI konnte nicht geladen werden.';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✨ Neu generieren';
+}
+
+async function getAIReplies() {
+  const textarea = document.getElementById('msgTextarea');
+  const message = textarea.value.trim();
+  if (!message) { showToast('Füge zuerst eine Nachricht ein, auf die du antworten willst', 'error'); return; }
+
+  const btn = document.getElementById('aiReplyBtn');
+  const area = document.getElementById('replySuggestionsArea');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Generiere...';
+  area.innerHTML = '<span class="loading"><span class="spinner"></span> KI denkt nach...</span>';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/ai`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'reply', contact_id: currentContact.id, message })
+    });
+    const data = await r.json();
+    const suggestions = Array.isArray(data.result) ? data.result : [];
+
+    area.innerHTML = suggestions.length ? `
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">✨ KI-Antwortvorschläge – klicke zum Übernehmen</div>
+      <div class="reply-suggestions">
+        ${suggestions.map(s => `
+          <div class="reply-suggestion" onclick="useReply(${JSON.stringify(s.text).replace(/'/g, "\\'")})">
+            <div class="reply-suggestion-label">${s.label}</div>
+            <div class="reply-suggestion-text">${s.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    ` : 'Keine Vorschläge generiert.';
+  } catch (e) {
+    area.innerHTML = 'KI konnte nicht geladen werden.';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✨ KI-Antworten generieren';
+}
+
+async function autoCategorize() {
+  const summary = document.getElementById('edit_summary').value.trim();
+  if (!summary) { showToast('Füge zuerst eine Problembeschreibung ein', 'error'); return; }
+
+  const btn = document.getElementById('categorizeBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analysiert...';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/ai`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'categorize', contact_id: currentContact.id, message: summary })
+    });
+    const data = await r.json();
+    const result = data.result;
+    if (result && typeof result === 'object') {
+      document.getElementById('edit_category').value = result.category || '';
+      document.getElementById('edit_priority').value = result.priority || 'mittel';
+      if (result.summary) document.getElementById('edit_summary').value = result.summary;
+      showToast('KI hat kategorisiert ✓', 'success');
+    }
+  } catch (e) {
+    showToast('KI Fehler', 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = '🤖 Auto-kategorisieren';
+}
+
+function useReply(text) {
+  document.getElementById('msgTextarea').value = text;
+  document.querySelector('.direction-toggle button[data-dir="ausgehend"]').click();
+}
+
+// ==================== RENDER ====================
+
+function renderContacts() {
+  const list = document.getElementById('contactsList');
+  const search = document.getElementById('searchInput').value.toLowerCase();
+
+  let filtered = contacts.filter(c => {
+    const matchSearch = !search ||
+      c.tiktok_username.toLowerCase().includes(search) ||
+      (c.display_name || '').toLowerCase().includes(search) ||
+      (c.problem_category || '').toLowerCase().includes(search);
+
+    const matchFilter = currentFilter === 'alle' ||
+      c.priority === currentFilter ||
+      c.status === currentFilter;
+
+    return matchSearch && matchFilter;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="no-contacts">Keine Kontakte gefunden</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(c => `
+    <div class="contact-card ${currentContact?.id === c.id ? 'active' : ''}" onclick="openContact(${JSON.stringify(JSON.stringify(c))})">
+      <div class="contact-card-top">
+        <div class="avatar">${(c.display_name || c.tiktok_username)[0].toUpperCase()}</div>
+        <div class="contact-info">
+          <div class="contact-name">${c.display_name || c.tiktok_username}</div>
+          <div class="contact-username">@${c.tiktok_username}</div>
+        </div>
+        <div class="priority-dot prio-${c.priority}" style="background:${c.priority==='hoch'?'var(--red)':c.priority==='mittel'?'var(--yellow)':'var(--green)'}"></div>
+      </div>
+      <div class="contact-card-bottom">
+        <span class="tag status-${c.status}">${c.status}</span>
+        ${c.problem_category ? `<span class="tag" style="background:var(--surface3);color:var(--text2)">${c.problem_category}</span>` : ''}
+        <span class="contact-last">${formatDate(c.last_contact)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openContact(contactOrJson) {
+  const contact = typeof contactOrJson === 'string' ? JSON.parse(contactOrJson) : contactOrJson;
+  currentContact = contact;
+  renderContacts();
+  loadMessages(contact.id);
+
+  document.getElementById('mainArea').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-avatar">${(contact.display_name || contact.tiktok_username)[0].toUpperCase()}</div>
+      <div class="detail-info">
+        <div class="detail-name">${contact.display_name || contact.tiktok_username}</div>
+        <a class="detail-username" href="https://www.tiktok.com/@${contact.tiktok_username}" target="_blank">@${contact.tiktok_username} ↗</a>
+        <div class="detail-meta">
+          <span class="tag status-${contact.status}">${contact.status}</span>
+          <span class="tag bg-${contact.priority}">${contact.priority} Priorität</span>
+          ${contact.problem_category ? `<span class="tag" style="background:var(--surface3);color:var(--text2)">${contact.problem_category}</span>` : ''}
+          ${contact.age_estimate ? `<span class="tag" style="background:var(--surface3);color:var(--text3)">~${contact.age_estimate} Jahre</span>` : ''}
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="icon-btn danger" onclick="deleteContact('${contact.id}')" title="Löschen">🗑️</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('overview', this)">Übersicht</div>
+      <div class="tab" onclick="switchTab('messages', this)">Nachrichten</div>
+    </div>
+
+    <div class="tab-content" id="tabContent">
+      ${renderOverviewTab(contact)}
+    </div>
+  `;
+}
+
+function renderOverviewTab(contact) {
+  return `
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <span class="ai-badge">KI</span>
+        <span class="ai-label">Zusammenfassung</span>
+        <button class="ai-generate-btn" id="aiSumBtn" onclick="getAISummary()">✨ Generieren</button>
+      </div>
+      <div class="ai-text" id="aiSumText" style="color:var(--text3);font-style:italic">Klicke auf "Generieren" für eine KI-Zusammenfassung dieser Person.</div>
+    </div>
+
+    <div class="overview-grid">
+      <div class="info-card">
+        <div class="info-card-label">Status</div>
+        <select id="edit_status" class="form-input" style="margin-top:0">
+          ${['aktiv','stabil','pausiert','erledigt'].map(s => `<option value="${s}" ${contact.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Priorität</div>
+        <select id="edit_priority" class="form-input" style="margin-top:0">
+          ${['hoch','mittel','niedrig'].map(p => `<option value="${p}" ${contact.priority===p?'selected':''}>${p.charAt(0).toUpperCase()+p.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Anzeigename</div>
+        <input type="text" id="edit_displayname" class="form-input" value="${contact.display_name || ''}" style="margin-top:0">
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Alter (ca.)</div>
+        <input type="text" id="edit_age" class="form-input" value="${contact.age_estimate || ''}" placeholder="z.B. 15-16" style="margin-top:0">
+      </div>
+      <div class="info-card info-card-full">
+        <div class="info-card-label" style="display:flex;align-items:center;justify-content:space-between">
+          <span>Problem-Kategorie</span>
+          <button id="categorizeBtn" onclick="autoCategorize()" style="font-size:11px;background:rgba(124,111,255,0.1);border:1px solid rgba(124,111,255,0.3);border-radius:6px;padding:3px 10px;color:var(--accent2);cursor:pointer;font-family:inherit">🤖 Auto-kategorisieren</button>
+        </div>
+        <select id="edit_category" class="form-input" style="margin-top:6px">
+          <option value="">-- keine --</option>
+          ${['Einsamkeit','Depressionen/Angst','Familiäre Probleme','Schulstress','Mobbing','Selbstverletzung','Beziehungsprobleme','Identität','Sonstiges'].map(cat => `<option value="${cat}" ${contact.problem_category===cat?'selected':''}>${cat}</option>`).join('')}
+        </select>
+      </div>
+      <div class="info-card info-card-full">
+        <div class="info-card-label">Zusammenfassung des Problems</div>
+        <textarea id="edit_summary" class="form-input" rows="3" style="margin-top:0">${contact.problem_summary || ''}</textarea>
+      </div>
+      <div class="info-card info-card-full">
+        <div class="info-card-label">Notizen</div>
+        <textarea id="edit_notes" class="form-input" rows="3" style="margin-top:0">${contact.notes || ''}</textarea>
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveContactEdits('${contact.id}')">Änderungen speichern</button>
+  `;
+}
+
+function renderMessages() {
+  const tabContent = document.getElementById('tabContent');
+  if (!tabContent || tabContent.dataset.tab !== 'messages') return;
+
+  tabContent.innerHTML = `
+    <div class="messages-container" id="msgContainer">
+      ${messages.length === 0
+        ? '<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px;">Noch keine Nachrichten. Füge Nachrichten hinzu um den Verlauf zu tracken.</div>'
+        : messages.map(m => `
+          <div class="msg-bubble ${m.direction}">
+            <div>${escHtml(m.content)}</div>
+            <span class="msg-time">${m.direction === 'eingehend' ? '📥' : '📤'} ${formatDateTime(m.created_at)}</span>
+          </div>
+        `).join('')
+      }
+    </div>
+
+    <div class="msg-input-area">
+      <textarea id="msgTextarea" rows="3" placeholder="Nachricht hier einfügen (von ihnen oder deine Antwort)..."></textarea>
+      <div class="msg-actions">
+        <div class="direction-toggle">
+          <button data-dir="eingehend" class="active" onclick="setDir(this)">📥 Von ihr/ihm</button>
+          <button data-dir="ausgehend" onclick="setDir(this)">📤 Von mir</button>
+        </div>
+        <button class="msg-send-btn" onclick="sendMessage()">Speichern</button>
+        <button class="ai-reply-btn" id="aiReplyBtn" onclick="getAIReplies()">✨ KI-Antworten generieren</button>
+      </div>
+      <div id="replySuggestionsArea" style="margin-top:10px"></div>
+    </div>
+  `;
+
+  // Scroll to bottom
+  const container = document.getElementById('msgContainer');
+  if (container) container.scrollTop = container.scrollHeight;
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  const tabContent = document.getElementById('tabContent');
+  tabContent.dataset.tab = tab;
+
+  if (tab === 'overview') {
+    tabContent.innerHTML = renderOverviewTab(currentContact);
+  } else if (tab === 'messages') {
+    tabContent.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3)"><span class="spinner"></span></div>`;
+    tabContent.dataset.tab = 'messages';
+    loadMessages(currentContact.id);
+  }
+}
+
+function saveContactEdits(id) {
+  const updates = {
+    status: document.getElementById('edit_status').value,
+    priority: document.getElementById('edit_priority').value,
+    display_name: document.getElementById('edit_displayname').value.trim(),
+    age_estimate: document.getElementById('edit_age').value.trim(),
+    problem_category: document.getElementById('edit_category').value,
+    problem_summary: document.getElementById('edit_summary').value.trim(),
+    notes: document.getElementById('edit_notes').value.trim()
+  };
+  updateContact(id, updates);
+}
+
+function updateStats() {
+  document.getElementById('statHoch').textContent = contacts.filter(c => c.priority === 'hoch').length + ' hoch';
+  document.getElementById('statMittel').textContent = contacts.filter(c => c.priority === 'mittel').length + ' mittel';
+  document.getElementById('statNiedrig').textContent = contacts.filter(c => c.priority === 'niedrig').length + ' niedrig';
+}
+
+// ==================== UI HELPERS ====================
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderContacts();
+}
+
+function filterContacts() { renderContacts(); }
+
+function setDir(btn) {
+  document.querySelectorAll('.direction-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function openAddModal() {
+  ['new_username','new_displayname','new_age','new_summary','new_notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('new_priority').value = 'mittel';
+  document.getElementById('new_category').value = '';
+  document.getElementById('addModal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.getElementById('addModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('addModal');
+});
+
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = type === 'success' ? '✓ ' + msg : '✕ ' + msg;
+  toast.className = `toast show ${type}`;
+  setTimeout(() => toast.className = 'toast', 3000);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return 'gerade';
+  if (diff < 3600) return Math.floor(diff/60) + 'm';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h';
+  if (diff < 604800) return Math.floor(diff/86400) + 'd';
+  return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' });
+}
+
+function formatDateTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' }) + ' ' +
+    d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// INIT
+loadContacts();
+</script>
+</body>
+</html>
