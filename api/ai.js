@@ -1,7 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk';
+import Groq from 'groq-sdk';
 import { createClient } from '@supabase/supabase-js';
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 export default async function handler(req, res) {
@@ -94,13 +94,13 @@ Antworte NUR mit JSON in diesem Format (keine weiteren Texte):
 }`;
     }
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 1000,
       messages: [{ role: 'user', content: prompt }]
     });
 
-    const text = response.content[0].text;
+    const text = response.choices[0].message.content;
 
     if (mode === 'reply' || mode === 'categorize') {
       try {
