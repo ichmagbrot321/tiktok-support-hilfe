@@ -1,0 +1,12 @@
+{
+  "name": "support-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "groq-sdk": "^0.9.0",
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
