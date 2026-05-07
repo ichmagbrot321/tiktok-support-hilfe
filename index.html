@@ -982,7 +982,8 @@ let replySuggestions = [];
 async function loadContacts() {
   try {
     const r = await fetch(`${API_BASE}/api/contacts`);
-    contacts = await r.json();
+    const data = await r.json();
+    contacts = Array.isArray(data) ? data : [];
     renderContacts();
     updateStats();
   } catch (e) {
