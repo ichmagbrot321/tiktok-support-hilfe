@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/api/contacts", "destination": "/api/contacts" },
-    { "source": "/api/messages", "destination": "/api/messages" },
-    { "source": "/api/ai", "destination": "/api/ai" },
-    { "source": "/(.*)", "destination": "/api/index" }
-  ]
-}
